@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Table extends AbstractTableModel {
     ArrayList<Product>products;
-    String [] columns={"Name","Brand","Type","Expiry","Quantity","Price"};
+    String [] columns={"Name","Brand","Type","Expiry","Quantity","Price", "Selling Price", "Total Price"};
     public Table(){
         products=new ArrayList<>();
     }
@@ -56,8 +56,12 @@ public class Table extends AbstractTableModel {
             return product.expiry;
         }else if (columnIndex==4) {
             return product.quantity;
-        }else{
+        }else if (columnIndex==5){
             return product.price;
+        } else if (columnIndex==6) {
+            return product.sellingPrice;
+        }else {
+            return product.totalPrice;
         }
     }
 }

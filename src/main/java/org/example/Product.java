@@ -1,7 +1,7 @@
 package org.example;
 
 public class Product {
-    String name,brand,type,expiry,quantity,price;
+    String name,brand,type,expiry,quantity,price,sellingPrice,totalPrice;
 
     public String getName() {
         return name;
@@ -51,12 +51,30 @@ public class Product {
         this.price = price;
     }
 
-    public Product(String name, String brand, String type, String expiry, String quantity, String price) {
+    public String getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(String sellingPrice) {
+        this.sellingPrice = sellingPrice;
+    }
+
+    public String getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(String totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public Product(String name, String brand, String type, String expiry, String quantity, String price, String sellingPrice, String totalPrice) {
         this.name = name;
         this.brand = brand;
         this.type = type;
         this.expiry = expiry;
         this.quantity = quantity;
         this.price = price;
+        this.sellingPrice=sellingPrice;
+        this.totalPrice=totalPrice;
     }
 }

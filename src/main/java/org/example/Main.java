@@ -28,9 +28,19 @@ public class Main {
                         String expiry=addFrame.getSelectedDate();
                         String quantity=addFrame.getSelectedQuantity();
                         String price=addFrame.priceField.getText();
+                        String sellingPrice=addFrame.sellingPriceField.getText();
+
+                        String totalPrice = "0";
+                        try {
+                            int qty = Integer.parseInt(quantity);
+                            double sellPrice = Double.parseDouble(sellingPrice);
+                            totalPrice = String.format("%.2f", qty * sellPrice);
+                        } catch (NumberFormatException ex) {
+
+                        }
 
                         if(name.isEmpty() || brand.isEmpty() || type.isEmpty() ||
-                                expiry.isEmpty() || quantity.isEmpty() || price.isEmpty()) {
+                                expiry.isEmpty() || quantity.isEmpty() || price.isEmpty() || sellingPrice.isEmpty() ) {
                             JOptionPane.showMessageDialog(addFrame, "Please fill all fields and select a date");
                             return;
                         }
@@ -58,10 +68,23 @@ public class Main {
                             return;
                         }
 
-                        Product product=new Product(name,brand,type,expiry,quantity,price);
+                        try {
+                            double priceValue = Double.parseDouble(sellingPrice);
+                            sellingPrice = String.format("%.2f", priceValue);
+                            if (priceValue <= 0) {
+                                JOptionPane.showMessageDialog(addFrame,"Please enter a valid price number");
+                                return;
+                            }
+
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(addFrame,"Please enter a valid price number");
+                            return;
+                        }
+
+                        Product product=new Product(name,brand,type,expiry,quantity,price,sellingPrice,totalPrice);
                         frame.table.addProduct(product);
 
-                        fireStoreConnection.addEmployee(name,brand,type,expiry,quantity,price);
+                        fireStoreConnection.addEmployee(name,brand,type,expiry,quantity,price,sellingPrice,totalPrice);
 
                         JOptionPane.showMessageDialog(addFrame, "Product added successfully!");
 
@@ -111,7 +134,8 @@ public class Main {
                                     updatedProduct.getType().isEmpty() ||
                                     updatedProduct.getExpiry().isEmpty() ||
                                     updatedProduct.getQuantity().isEmpty() ||
-                                    updatedProduct.getPrice().isEmpty()) {
+                                    updatedProduct.getPrice().isEmpty() ||
+                                    updatedProduct.getSellingPrice().isEmpty()) {
                                 JOptionPane.showMessageDialog(updateFrame,"Please fill in all fields");
                                 return;
                             }
@@ -137,6 +161,19 @@ public class Main {
                                     return;
                                 }
                                 updatedProduct.setPrice(String.format("%.2f", priceValue));
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(updateFrame,"Price must be a price number");
+                                return;
+                            }
+
+                            try {
+                                double priceValue;
+                                priceValue = Double.parseDouble(updatedProduct.getSellingPrice());
+                                if (priceValue <= 0) {
+                                    JOptionPane.showMessageDialog(updateFrame,"Please enter a valid price number");
+                                    return;
+                                }
+                                updatedProduct.setSellingPrice(String.format("%.2f", priceValue));
                             } catch (NumberFormatException ex) {
                                 JOptionPane.showMessageDialog(updateFrame,"Price must be a price number");
                                 return;

@@ -2,12 +2,14 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class UpdateProduct extends JFrame {
-    JLabel name, price, quantity, expiry, brand, type;
-    JTextField nameField, priceField, brandField, typeField;
+    JLabel name, price, quantity, expiry, brand, type, sellingPrice, totalPrice;
+    JTextField nameField, priceField, brandField, typeField, sellingPriceField, totalPriceField;
     JButton updateButton;
     JSpinner dateSpinner;
     JComboBox<String> quantityCombo;
@@ -22,16 +24,21 @@ public class UpdateProduct extends JFrame {
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         name = new JLabel("Name");
-        price = new JLabel("Price ($)");
+        price = new JLabel("Standard Price");
         quantity = new JLabel("Quantity");
         expiry = new JLabel("Expiry Date");
         brand = new JLabel("Brand");
         type = new JLabel("Type");
+        sellingPrice = new JLabel("Selling Price");
+        totalPrice = new JLabel("Total Price");
 
         nameField = new JTextField(12);
         priceField = new JTextField(8);
         brandField = new JTextField(10);
         typeField = new JTextField(10);
+        sellingPriceField = new JTextField(8);
+        totalPriceField = new JTextField(8);
+        totalPriceField.setEditable(false);
 
         updateButton = new JButton("Update Product");
 
@@ -41,10 +48,20 @@ public class UpdateProduct extends JFrame {
         dateSpinner.setEditor(dateEditor);
 
         quantityCombo = new JComboBox<>();
+
         populateQuantityOptions();
+
         dateSpinner.setPreferredSize(new Dimension(120, dateSpinner.getPreferredSize().height));
         quantityCombo.setPreferredSize(new Dimension(100, quantityCombo.getPreferredSize().height));
         priceField.setPreferredSize(new Dimension(80, priceField.getPreferredSize().height));
+
+        quantityCombo.addActionListener(e -> calculateTotalPrice());
+        sellingPriceField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                calculateTotalPrice();
+            }
+        });
 
         populateFieldsWithProductData(product);
 
@@ -117,6 +134,26 @@ public class UpdateProduct extends JFrame {
 
         constraints.gridx = 0;
         constraints.gridy = 3;
+        constraints.gridwidth = 2;
+        container.add(sellingPrice,constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 3;
+        constraints.gridwidth = 2;
+        container.add(sellingPriceField,constraints);
+
+        constraints.gridx = 3;
+        constraints.gridy = 3;
+        constraints.gridwidth = 2;
+        container.add(totalPrice,constraints);
+
+        constraints.gridx = 4;
+        constraints.gridy = 3;
+        constraints.gridwidth = 2;
+        container.add(totalPriceField,constraints);
+
+        constraints.gridx = 0;
+        constraints.gridy = 4;
         constraints.gridwidth = 6;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         container.add(updateButton, constraints);
@@ -173,6 +210,17 @@ public class UpdateProduct extends JFrame {
         updateButton.addActionListener(action);
     }
 
+    public void calculateTotalPrice() {
+        try {
+            int qty = Integer.parseInt(getSelectedQuantity());
+            double sellingPrice = Double.parseDouble(sellingPriceField.getText().trim());
+            double total = qty * sellingPrice;
+            totalPriceField.setText(String.format("%.2f", total));
+        } catch (NumberFormatException e) {
+            totalPriceField.setText("");
+        }
+    }
+
     public Product getUpdatedProduct() {
         return new Product(
                 nameField.getText().trim(),
@@ -180,7 +228,10 @@ public class UpdateProduct extends JFrame {
                 typeField.getText().trim(),
                 getSelectedDate(),
                 getSelectedQuantity().trim(),
-                priceField.getText().trim()
+                priceField.getText().trim(),
+                sellingPriceField.getText().trim(),
+                totalPriceField.getText().trim()
+
         );
     }
 }

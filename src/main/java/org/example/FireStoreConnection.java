@@ -21,7 +21,7 @@ public class FireStoreConnection {
     public FireStoreConnection(){
         db=null;
         try {
-            FileInputStream serviceAccount = new FileInputStream("src/main/java/org/example/stock-store-a277c-firebase-adminsdk-fbsvc-107493cabb.json");
+            FileInputStream serviceAccount = new FileInputStream("src/main/java/org/example/stock-store-a277c-firebase-adminsdk-fbsvc-5f38a39920.json");
             FirebaseOptions options = new FirebaseOptions.Builder().
                     setCredentials(GoogleCredentials.fromStream(serviceAccount)).
                     setDatabaseUrl("https://stock-store-a277c-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -33,14 +33,16 @@ public class FireStoreConnection {
         }
     }
     public void addEmployee(String name, String brand, String type, String expiry,
-                            String quantity, String price) {
+                            String quantity, String price, String sellingPrice, String totalPrice) {
         Map<String, Object> product = new HashMap<>();
         product.put("Name", name);
         product.put("Brand",brand);
         product.put("Type", type);
         product.put("Expiration Date", expiry);
         product.put("Quantity", quantity);
-        product.put("Price",price);
+        product.put("Standard Price",price);
+        product.put("Selling Price", sellingPrice);
+        product.put("Total Price", totalPrice);
 
         ApiFuture<DocumentReference> result = db.collection("products").add(product);
 
@@ -64,7 +66,9 @@ public class FireStoreConnection {
                 updates.put("Type",product.getType());
                 updates.put("Expiration Date",product.getExpiry());
                 updates.put("Quantity",product.getQuantity());
-                updates.put("Price",product.getPrice());
+                updates.put("Standard Price",product.getPrice());
+                updates.put("Selling Price",product.getSellingPrice());
+                updates.put("Total Price",product.getTotalPrice());
                 docRef.update(updates);
             }
         } catch (Exception e) {
@@ -94,8 +98,19 @@ public class FireStoreConnection {
                 String type=document.getString("Type");
                 String expiry=document.getString("Expiration Date");
                 String quantity=document.getString("Quantity");
-                String price=document.getString("Price");
-                products.add(new Product(name,brand,type,expiry,quantity,price));
+                String price=document.getString("Standard Price");
+                String sellingPrice=document.getString("Selling Price");
+                String totalPrice=document.getString("Total Price");
+
+                try {
+                    int qty = Integer.parseInt(quantity);
+                    double sellPrice = Double.parseDouble(sellingPrice);
+                    totalPrice = String.format("%.2f", qty * sellPrice);
+                } catch (NumberFormatException e) {
+
+                }
+
+                products.add(new Product(name,brand,type,expiry,quantity,price,sellingPrice,totalPrice));
             }
             return products;
         } catch (Exception e) {

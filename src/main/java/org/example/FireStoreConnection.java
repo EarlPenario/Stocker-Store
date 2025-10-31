@@ -21,7 +21,7 @@ public class FireStoreConnection {
     public FireStoreConnection(){
         db=null;
         try {
-            FileInputStream serviceAccount = new FileInputStream("src/main/java/org/example/stock-store-a277c-firebase-adminsdk-fbsvc-5f38a39920.json");
+            FileInputStream serviceAccount = new FileInputStream("src/main/java/org/example/stock-store-a277c-firebase-adminsdk-fbsvc-049e1a9aad.json");
             FirebaseOptions options = new FirebaseOptions.Builder().
                     setCredentials(GoogleCredentials.fromStream(serviceAccount)).
                     setDatabaseUrl("https://stock-store-a277c-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -43,6 +43,8 @@ public class FireStoreConnection {
         product.put("Standard Price",price);
         product.put("Selling Price", sellingPrice);
         product.put("Total Price", totalPrice);
+        product.put("Reduced Price", false);
+        product.put("Original Selling Price", sellingPrice);
 
         ApiFuture<DocumentReference> result = db.collection("products").add(product);
 
@@ -69,6 +71,8 @@ public class FireStoreConnection {
                 updates.put("Standard Price",product.getPrice());
                 updates.put("Selling Price",product.getSellingPrice());
                 updates.put("Total Price",product.getTotalPrice());
+                updates.put("Reduced Price", product.isPriceReduced());
+                updates.put("Original Selling Price", product.getOriginalSellingPrice());
                 docRef.update(updates);
             }
         } catch (Exception e) {
@@ -101,6 +105,8 @@ public class FireStoreConnection {
                 String price=document.getString("Standard Price");
                 String sellingPrice=document.getString("Selling Price");
                 String totalPrice=document.getString("Total Price");
+                Boolean priceReduced = document.getBoolean("Reduced Price");
+                String originalSellingPrice = document.getString("Original Selling Price");
 
                 try {
                     int qty = Integer.parseInt(quantity);

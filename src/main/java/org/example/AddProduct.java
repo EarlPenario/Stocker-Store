@@ -32,10 +32,15 @@ public class AddProduct extends JFrame {
 
         nameField = new JTextField(12);
         priceField = new JTextField(8);
+        priceField.setText("0.00");
+        priceField.setToolTipText("Enter price as number (e.g., 15.99)");
         brandField = new JTextField(10);
         typeField = new JTextField(10);
         sellingPriceField = new JTextField(8);
+        sellingPriceField.setText("0.00");
+        sellingPriceField.setToolTipText("Enter price as number (Example: 15.99)");
         totalPriceField = new JTextField(8);
+        totalPriceField.setText("0.00");
         totalPriceField.setEditable(false);
 
         addButton = new JButton("Add Product");

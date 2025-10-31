@@ -1,7 +1,16 @@
 package org.example;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Product {
     String name,brand,type,expiry,quantity,price,sellingPrice,totalPrice;
+
+    boolean priceReduced = false;
+    String originalSellingPrice = "";
+
+    public static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public String getName() {
         return name;
@@ -76,5 +85,65 @@ public class Product {
         this.price = price;
         this.sellingPrice=sellingPrice;
         this.totalPrice=totalPrice;
+    }
+    public boolean isPriceReduced() {
+        return priceReduced;
+    }
+
+    public void setPriceReduced(boolean priceReduced) {
+        this.priceReduced = priceReduced;
+    }
+
+    public String getOriginalSellingPrice() {
+        return originalSellingPrice;
+    }
+
+    public void setOriginalSellingPrice(String originalSellingPrice) {
+        this.originalSellingPrice = originalSellingPrice;
+    }
+
+    public boolean fiveDayExpiry() {
+        try {
+            Date expiryDate = dateFormat.parse(expiry);
+            Date currentDate = new Date();
+            long diff = expiryDate.getTime() - currentDate.getTime();
+            long daysUntilExpiry = diff / (1000 * 60 * 60 * 24);
+            return daysUntilExpiry <= 5 && daysUntilExpiry >= 0;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    public boolean isExpiringSoon() {
+        try {
+            Date expiryDate = dateFormat.parse(expiry);
+            Date currentDate = new Date();
+            long diff = expiryDate.getTime() - currentDate.getTime();
+            long daysUntilExpiry = diff / (1000 * 60 * 60 * 24);
+            return daysUntilExpiry <= 14 && daysUntilExpiry >= 0;
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    public boolean isExpired() {
+        try {
+            Date expiryDate = dateFormat.parse(expiry);
+            Date currentDate = new Date();
+            return expiryDate.before(currentDate);
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    public int getDaysUntilExpiry() {
+        try {
+            Date expiryDate = dateFormat.parse(expiry);
+            Date currentDate = new Date();
+            long diff = expiryDate.getTime() - currentDate.getTime();
+            return (int) (diff / (1000 * 60 * 60 * 24));
+        } catch (ParseException e) {
+            return Integer.MAX_VALUE;
+        }
     }
 }

@@ -2,6 +2,7 @@ package org.example;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.util.ArrayList;
 
 public class Table extends AbstractTableModel {
@@ -39,6 +40,17 @@ public class Table extends AbstractTableModel {
         }
         return null;
     }
+
+    public Color getRowColor(int row) {
+        Product product = products.get(row);
+        if (product.isExpired()) {
+            return new Color(255, 200, 200); // Light red for expired
+        } else if (product.isExpiringSoon()) {
+            return new Color(255, 255, 200); // Light yellow for expiring soon
+        }
+        return null; // Default color
+    }
+
     @Override
     public String getColumnName(int column) {
         return columns[column];

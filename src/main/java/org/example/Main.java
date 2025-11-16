@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -221,6 +222,49 @@ public class Main {
                 }
             }
         });
+
+        // Search button action listener
+        frame.search.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String searchBrand = frame.searchField.getText().trim();
+
+                if (searchBrand.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Please enter a brand name to search");
+                    return;
+                }
+
+                ArrayList<Product> allProducts = frame.table.products;
+                ArrayList<Product> foundProducts = new ArrayList<>();
+
+                // Search for products with matching brand (case-insensitive)
+                for (Product product : allProducts) {
+                    if (product.getBrand().toLowerCase().contains(searchBrand.toLowerCase())) {
+                        foundProducts.add(product);
+                    }
+                }
+
+                if (foundProducts.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "No products found with brand: " + searchBrand);
+                } else if (foundProducts.size() == 1) {
+                    // If only one product found, open update frame directly
+                    Product product = foundProducts.get(0);
+                    int productIndex = frame.table.products.indexOf(product);
+
+                    if (productIndex != -1) {
+                        frame.productTable.setRowSelectionInterval(productIndex, productIndex);
+                        frame.productTable.scrollRectToVisible(
+                                frame.productTable.getCellRect(productIndex, 0, true)
+                        );
+                        frame.update.doClick();
+                    }
+                } else {
+                    // If multiple products found, show selection dialog
+                    showBrandSearchResults(frame, foundProducts);
+                }
+            }
+        });
+
         Timer startupTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -253,5 +297,72 @@ public class Main {
                 checker.checkExpiringProducts();
             }
         });
+    }
+
+    public static void showBrandSearchResults(Frame frame, ArrayList<Product> foundProducts) {
+        JDialog searchDialog = new JDialog(frame, "Search Results - Multiple Products Found", true);
+        searchDialog.setLayout(new BorderLayout());
+        searchDialog.setSize(600, 400);
+        searchDialog.setLocationRelativeTo(frame);
+
+        // Create table model for search results
+        String[] columns = {"Name", "Brand", "Type", "Expiry Date"};
+        Object[][] data = new Object[foundProducts.size()][4];
+
+        for (int i = 0; i < foundProducts.size(); i++) {
+            Product product = foundProducts.get(i);
+            data[i][0] = product.getName();
+            data[i][1] = product.getBrand();
+            data[i][2] = product.getType();
+            data[i][3] = product.getExpiry();
+        }
+
+        JTable resultsTable = new JTable(data, columns);
+        JScrollPane scrollPane = new JScrollPane(resultsTable);
+
+        JButton selectButton = new JButton("Select Product to Update");
+        JButton cancelButton = new JButton("Cancel");
+
+        selectButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = resultsTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    Product selectedProduct = foundProducts.get(selectedRow);
+                    int productIndex = frame.table.products.indexOf(selectedProduct);
+
+                    if (productIndex != -1) {
+                        frame.productTable.setRowSelectionInterval(productIndex, productIndex);
+                        frame.productTable.scrollRectToVisible(
+                                frame.productTable.getCellRect(productIndex, 0, true)
+                        );
+                        searchDialog.dispose();
+                        frame.update.doClick();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(searchDialog,
+                            "Please select a product from the list",
+                            "No Selection",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchDialog.dispose();
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(selectButton);
+        buttonPanel.add(cancelButton);
+
+        searchDialog.add(new JLabel("Multiple products found. Please select one to update:"), BorderLayout.NORTH);
+        searchDialog.add(scrollPane, BorderLayout.CENTER);
+        searchDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        searchDialog.setVisible(true);
     }
 }

@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExpirationChecker extends JFrame {
-     Frame frame;
-     ArrayList<Product> products;
+    public Frame frame;
+    public ArrayList<Product> products;
+    public FireStoreConnection fireStoreConnection;
 
     public ExpirationChecker(Frame mainFrame, ArrayList<Product> products) {
         this.frame = mainFrame;
         this.products = products;
+        this.fireStoreConnection = new FireStoreConnection();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(mainFrame);
     }
@@ -40,7 +42,7 @@ public class ExpirationChecker extends JFrame {
         }
     }
 
-   public void showExpiredAlert(List<Product> expiredProducts) {
+    public void showExpiredAlert(List<Product> expiredProducts) {
         StringBuilder message = new StringBuilder();
         message.append("The following products have EXPIRED:\n\n");
 
@@ -154,15 +156,15 @@ public class ExpirationChecker extends JFrame {
                     frame.productTable.getCellRect(productIndex, 0, true)
             );
 
-            suggestPriceReduction(product);
+
+            applyAutomaticPriceReduction(product, productIndex);
 
             frame.update.doClick();
-
             this.dispose();
         }
     }
 
-   public int findProductIndex(Product product) {
+    public int findProductIndex(Product product) {
         for (int i = 0; i < frame.table.products.size(); i++) {
             Product p = frame.table.products.get(i);
             if (p.getName().equals(product.getName()) &&
@@ -174,22 +176,55 @@ public class ExpirationChecker extends JFrame {
         return -1;
     }
 
-    public void suggestPriceReduction(Product product) {
+    public void applyAutomaticPriceReduction(Product product, int productIndex) {
         try {
             double currentPrice = Double.parseDouble(product.getSellingPrice());
-            double suggestedPrice = currentPrice * 0.7; // 30% discount
+            double suggestedPrice = currentPrice * 0.7;
+
+
+            Product updatedProduct = new Product(
+                    product.getName(),
+                    product.getBrand(),
+                    product.getType(),
+                    product.getExpiry(),
+                    product.getQuantity(),
+                    product.getPrice(),
+                    String.format("%.2f", suggestedPrice),
+                    calculateTotalPrice(product.getQuantity(), String.format("%.2f", suggestedPrice)),
+                    true,
+                    product.getSellingPrice()
+            );
+
+
+            frame.table.updateProduct(productIndex, updatedProduct);
+
+
+            fireStoreConnection.updateProduct(updatedProduct, productIndex);
 
             String message = String.format(
-                    "Suggested price reduction for s:\n\n" +
-                            "Current selling price: %.2f\n" +
-                            "Suggested new price: %.2f\n\n" +
+                    "Automatic price reduction applied for %s:\n\n" +
+                            "Original selling price: $%.2f\n" +
+                            "New reduced price: $%.2f\n\n" +
                             "This is a 30%% discount to help sell the product before expiration.",
                     product.getName(), currentPrice, suggestedPrice
             );
 
             JOptionPane.showMessageDialog(frame, message,
-                    "Price Reduction Suggestion", JOptionPane.INFORMATION_MESSAGE);
+                    "Price Reduction Applied", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame, "Error applying price reduction: Invalid price format",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private String calculateTotalPrice(String quantity, String sellingPrice) {
+        try {
+            int qty = Integer.parseInt(quantity);
+            double sellPrice = Double.parseDouble(sellingPrice);
+            return String.format("%.2f", qty * sellPrice);
+        } catch (NumberFormatException e) {
+            return "0.00";
         }
     }
 }

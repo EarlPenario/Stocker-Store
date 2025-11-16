@@ -8,16 +8,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class UpdateProduct extends JFrame {
-    JLabel name, price, quantity, expiry, brand, type, sellingPrice, totalPrice;
-    JTextField nameField, priceField, brandField, typeField, sellingPriceField, totalPriceField;
-    JButton updateButton;
-    JSpinner dateSpinner;
-    JComboBox<String> quantityCombo;
-    Container container;
-    GridBagLayout layout;
-    GridBagConstraints constraints;
-    SimpleDateFormat dateFormat;
-    Product originalProduct;
+    public JLabel name, price, quantity, expiry, brand, type, sellingPrice, totalPrice;
+    public JTextField nameField, priceField, brandField, typeField, sellingPriceField, totalPriceField;
+    public JButton updateButton;
+    public JSpinner dateSpinner;
+    public JComboBox<String> quantityCombo;
+    public Container container;
+    public GridBagLayout layout;
+    public GridBagConstraints constraints;
+    public SimpleDateFormat dateFormat;
+    public Product originalProduct;
 
     public UpdateProduct(Product product) {
         this.originalProduct = product;
@@ -193,6 +193,7 @@ public class UpdateProduct extends JFrame {
         typeField.setText(product.getType());
         quantityCombo.setSelectedItem(product.getQuantity());
         priceField.setText(product.getPrice());
+        sellingPriceField.setText(product.getSellingPrice());
 
         try {
             Date expiryDate = dateFormat.parse(product.getExpiry());
@@ -200,6 +201,8 @@ public class UpdateProduct extends JFrame {
         } catch (Exception e) {
             dateSpinner.setValue(new Date());
         }
+
+        calculateTotalPrice();
     }
 
     public String getSelectedDate() {
@@ -227,6 +230,17 @@ public class UpdateProduct extends JFrame {
     }
 
     public Product getUpdatedProduct() {
+
+        boolean priceReduced = originalProduct.isPriceReduced();
+        String originalSellingPrice = originalProduct.getOriginalSellingPrice();
+
+
+        String newSellingPrice = sellingPriceField.getText().trim();
+        if (!newSellingPrice.equals(originalProduct.getSellingPrice()) && !priceReduced) {
+            priceReduced = true;
+            originalSellingPrice = originalProduct.getSellingPrice();
+        }
+
         return new Product(
                 nameField.getText().trim(),
                 brandField.getText().trim(),
@@ -234,9 +248,10 @@ public class UpdateProduct extends JFrame {
                 getSelectedDate(),
                 getSelectedQuantity().trim(),
                 priceField.getText().trim(),
-                sellingPriceField.getText().trim(),
-                totalPriceField.getText().trim()
-
+                newSellingPrice,
+                totalPriceField.getText().trim(),
+                priceReduced,
+                originalSellingPrice
         );
     }
 }

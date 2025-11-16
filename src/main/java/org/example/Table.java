@@ -44,11 +44,11 @@ public class Table extends AbstractTableModel {
     public Color getRowColor(int row) {
         Product product = products.get(row);
         if (product.isExpired()) {
-            return new Color(255, 200, 200); // Light red for expired
+            return new Color(255, 200, 200);
         } else if (product.isExpiringSoon()) {
-            return new Color(255, 255, 200); // Light yellow for expiring soon
+            return new Color(255, 255, 200);
         }
-        return null; // Default color
+        return null;
     }
 
     @Override

@@ -83,9 +83,26 @@ public class Product {
         this.expiry = expiry;
         this.quantity = quantity;
         this.price = price;
-        this.sellingPrice=sellingPrice;
-        this.totalPrice=totalPrice;
+        this.sellingPrice = sellingPrice;
+        this.totalPrice = totalPrice;
     }
+
+
+    public Product(String name, String brand, String type, String expiry, String quantity,
+                   String price, String sellingPrice, String totalPrice,
+                   boolean priceReduced, String originalSellingPrice) {
+        this.name = name;
+        this.brand = brand;
+        this.type = type;
+        this.expiry = expiry;
+        this.quantity = quantity;
+        this.price = price;
+        this.sellingPrice = sellingPrice;
+        this.totalPrice = totalPrice;
+        this.priceReduced = priceReduced;
+        this.originalSellingPrice = originalSellingPrice;
+    }
+
     public boolean isPriceReduced() {
         return priceReduced;
     }

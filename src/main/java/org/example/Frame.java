@@ -47,7 +47,7 @@ public class Frame extends JFrame {
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(10, 10, 10, 10);
 
-        // First row - Main buttons
+
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridheight = 1;
@@ -77,7 +77,7 @@ public class Frame extends JFrame {
         constraints.gridwidth = 1;
         container.add(checkExpiration, constraints);
 
-        // Second row - Search bar
+
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.gridwidth = 3;
@@ -91,7 +91,7 @@ public class Frame extends JFrame {
         constraints.weightx = 0;
         container.add(search, constraints);
 
-        // Third row - Table
+
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.gridheight = 1;

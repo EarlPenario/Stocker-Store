@@ -223,7 +223,7 @@ public class Main {
             }
         });
 
-        // Search button action listener
+
         frame.search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -237,7 +237,7 @@ public class Main {
                 ArrayList<Product> allProducts = frame.table.products;
                 ArrayList<Product> foundProducts = new ArrayList<>();
 
-                // Search for products with matching brand (case-insensitive)
+
                 for (Product product : allProducts) {
                     if (product.getBrand().toLowerCase().contains(searchBrand.toLowerCase())) {
                         foundProducts.add(product);
@@ -247,7 +247,7 @@ public class Main {
                 if (foundProducts.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "No products found with brand: " + searchBrand);
                 } else if (foundProducts.size() == 1) {
-                    // If only one product found, open update frame directly
+
                     Product product = foundProducts.get(0);
                     int productIndex = frame.table.products.indexOf(product);
 
@@ -259,7 +259,7 @@ public class Main {
                         frame.update.doClick();
                     }
                 } else {
-                    // If multiple products found, show selection dialog
+
                     showBrandSearchResults(frame, foundProducts);
                 }
             }
@@ -268,7 +268,7 @@ public class Main {
         Timer startupTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Refresh data and check expiration
+
                 ArrayList<Product> freshData = fireStoreConnection.getAllProducts();
                 frame.table.products.clear();
                 for (Product product : freshData) {
@@ -305,7 +305,7 @@ public class Main {
         searchDialog.setSize(600, 400);
         searchDialog.setLocationRelativeTo(frame);
 
-        // Create table model for search results
+        
         String[] columns = {"Name", "Brand", "Type", "Expiry Date"};
         Object[][] data = new Object[foundProducts.size()][4];
 

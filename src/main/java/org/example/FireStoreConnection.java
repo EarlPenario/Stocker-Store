@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 
 public class FireStoreConnection {
-    Firestore db;
+    public Firestore db;
 
     public FireStoreConnection(){
         db=null;
         try {
-            FileInputStream serviceAccount = new FileInputStream("src/main/java/org/example/stock-store-a277c-firebase-adminsdk-fbsvc-0d42fe9731.json");
+            FileInputStream serviceAccount = new FileInputStream("src/main/java/org/example/stock-store-a277c-firebase-adminsdk-fbsvc-0ba9dd3b7d.json");
             FirebaseOptions options = new FirebaseOptions.Builder().
                     setCredentials(GoogleCredentials.fromStream(serviceAccount)).
                     setDatabaseUrl("https://stock-store-a277c-default-rtdb.asia-southeast1.firebasedatabase.app/")
@@ -32,6 +32,7 @@ public class FireStoreConnection {
             e.printStackTrace();
         }
     }
+
     public void addEmployee(String name, String brand, String type, String expiry,
                             String quantity, String price, String sellingPrice, String totalPrice) {
         Map<String, Object> product = new HashMap<>();
@@ -54,6 +55,7 @@ public class FireStoreConnection {
             e.printStackTrace();
         }
     }
+
     public void updateProduct(Product product,int index){
         try {
             ApiFuture<QuerySnapshot>query=db.collection(("products")).get();
@@ -74,11 +76,13 @@ public class FireStoreConnection {
                 updates.put("Reduced Price", product.isPriceReduced());
                 updates.put("Original Selling Price", product.getOriginalSellingPrice());
                 docRef.update(updates);
+                System.out.println("Product updated in Firebase with price reduction: " + product.isPriceReduced());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     public void deleteProduct(int index){
         try {
             ApiFuture<QuerySnapshot>query=db.collection("products").get();
@@ -91,6 +95,7 @@ public class FireStoreConnection {
             e.printStackTrace();
         }
     }
+
     public ArrayList<Product> getAllProducts() {
         try {
             ApiFuture<QuerySnapshot> query=db.collection("products").get();
@@ -108,6 +113,11 @@ public class FireStoreConnection {
                 Boolean priceReduced = document.getBoolean("Reduced Price");
                 String originalSellingPrice = document.getString("Original Selling Price");
 
+
+                if (priceReduced == null) priceReduced = false;
+                if (originalSellingPrice == null) originalSellingPrice = sellingPrice;
+
+
                 try {
                     int qty = Integer.parseInt(quantity);
                     double sellPrice = Double.parseDouble(sellingPrice);
@@ -116,7 +126,9 @@ public class FireStoreConnection {
 
                 }
 
-                products.add(new Product(name,brand,type,expiry,quantity,price,sellingPrice,totalPrice));
+                Product product = new Product(name, brand, type, expiry, quantity, price,
+                        sellingPrice, totalPrice, priceReduced, originalSellingPrice);
+                products.add(product);
             }
             return products;
         } catch (Exception e) {

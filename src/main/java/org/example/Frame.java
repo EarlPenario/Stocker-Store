@@ -7,7 +7,7 @@ import java.awt.*;
 public class Frame extends JFrame {
     public JTable productTable;
     public Table table;
-    public JButton add, remove, update, checkExpiration, search;
+    public JButton add, remove, update, checkExpiration, search, monthlyReport;
     public JTextField searchField;
     public Container container;
     public GridBagLayout layout;
@@ -38,6 +38,7 @@ public class Frame extends JFrame {
         update = new JButton("Update");
         checkExpiration = new JButton("Check Expiration");
         search = new JButton("Search Brand");
+        monthlyReport = new JButton("Monthly Report");
         searchField = new JTextField(15);
         searchField.setToolTipText("Enter brand name to search");
 
@@ -80,16 +81,22 @@ public class Frame extends JFrame {
 
         constraints.gridx = 0;
         constraints.gridy = 1;
-        constraints.gridwidth = 3;
+        constraints.gridwidth = 2;
         constraints.weightx = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         container.add(searchField, constraints);
+
+        constraints.gridx = 2;
+        constraints.gridy = 1;
+        constraints.gridwidth = 1;
+        constraints.weightx = 0;
+        container.add(search, constraints);
 
         constraints.gridx = 3;
         constraints.gridy = 1;
         constraints.gridwidth = 1;
         constraints.weightx = 0;
-        container.add(search, constraints);
+        container.add(monthlyReport, constraints);
 
 
         constraints.gridx = 0;

@@ -297,6 +297,122 @@ public class Main {
                 checker.checkExpiringProducts();
             }
         });
+
+        frame.monthlyReport.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                generateMonthlyReport(frame, fireStoreConnection);
+            }
+        });
+    }
+
+    public static void generateMonthlyReport(Frame frame, FireStoreConnection fireStoreConnection) {
+        ArrayList<Product> allProducts = fireStoreConnection.getAllProducts();
+
+        double totalStandardPrice = 0.0;
+        double totalSellingPrice = 0.0;
+        double totalPotentialProfit = 0.0;
+        int totalProducts = allProducts.size();
+        int totalQuantity = 0;
+
+    
+        for (Product product : allProducts) {
+            try {
+                double standardPrice = Double.parseDouble(product.getPrice());
+                double sellingPrice = Double.parseDouble(product.getSellingPrice());
+                int quantity = Integer.parseInt(product.getQuantity());
+
+                totalStandardPrice += standardPrice * quantity;
+                totalSellingPrice += sellingPrice * quantity;
+                totalQuantity += quantity;
+            } catch (NumberFormatException ex) {
+
+                System.out.println("Skipping product with invalid price/quantity: " + product.getName());
+            }
+        }
+
+        totalPotentialProfit = totalSellingPrice - totalStandardPrice;
+
+
+        JDialog reportDialog = new JDialog(frame, "Monthly Inventory Report", true);
+        reportDialog.setLayout(new BorderLayout());
+        reportDialog.setSize(500, 400);
+        reportDialog.setLocationRelativeTo(frame);
+
+
+        String reportContent = String.format(
+                "MONTHLY INVENTORY REPORT\n\n" +
+                        "Inventory Summary:\n" +
+                        "• Total Products: %d\n" +
+                        "• Total Quantity: %d units\n\n" +
+                        "Financial Summary:\n" +
+                        "• Total Standard Price Value: $%.2f\n" +
+                        "• Total Selling Price Value: $%.2f\n" +
+                        "• Total Potential Profit: $%.2f\n\n" +
+                        "Product Breakdown:\n",
+                totalProducts, totalQuantity, totalStandardPrice, totalSellingPrice, totalPotentialProfit
+        );
+
+
+        StringBuilder productDetails = new StringBuilder();
+        for (Product product : allProducts) {
+            try {
+                double standardPrice = Double.parseDouble(product.getPrice());
+                double sellingPrice = Double.parseDouble(product.getSellingPrice());
+                int quantity = Integer.parseInt(product.getQuantity());
+                double productStandardTotal = standardPrice * quantity;
+                double productSellingTotal = sellingPrice * quantity;
+
+                productDetails.append(String.format(
+                        "• %s (%s): %d units | Cost: $%.2f | Value: $%.2f\n",
+                        product.getName(), product.getBrand(), quantity, productStandardTotal, productSellingTotal
+                ));
+            } catch (NumberFormatException ex) {
+
+            }
+        }
+
+        JTextArea reportTextArea = new JTextArea(reportContent + productDetails.toString());
+        reportTextArea.setEditable(false);
+        reportTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        reportTextArea.setMargin(new Insets(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane(reportTextArea);
+
+
+        JButton printButton = new JButton("Print Report");
+        JButton closeButton = new JButton("Close");
+
+        printButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    reportTextArea.print();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(reportDialog,
+                            "Error printing report: " + ex.getMessage(),
+                            "Print Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        closeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reportDialog.dispose();
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(printButton);
+        buttonPanel.add(closeButton);
+
+
+        reportDialog.add(new JLabel("Monthly Inventory Report Summary:"), BorderLayout.NORTH);
+        reportDialog.add(scrollPane, BorderLayout.CENTER);
+        reportDialog.add(buttonPanel, BorderLayout.SOUTH);
+
+        reportDialog.setVisible(true);
     }
 
     public static void showBrandSearchResults(Frame frame, ArrayList<Product> foundProducts) {
